@@ -130,26 +130,31 @@ PROXY_ROUTE_TABLE="0x162"
 TPROXY_PORT=$(uci -q get wand.config.tproxy_port)
 
 start() {
-	restart
+	uci -q del dhcp.@dnsmasq[-1].server
+	uci -q del dhcp.@dnsmasq[-1].noresolv
+	uci -q commit dhcp
+	core_clash
+	echo "wand is start"
 }
 
 stop() {
 	kill_clash
-	/etc/init.d/wand disable
-	uci del dhcp.@dnsmasq[-1].server
-	uci del dhcp.@dnsmasq[-1].noresolv
-	uci commit dhcp
-	/etc/init.d/dnsmasq restart
+	echo "wand is stop"
 }
 
 restart() {
 	kill_clash
 	core_clash
+	echo "wand is restart"
 }
 
 kill_clash() {
-	iptables -t mangle -D PREROUTING -j wand
-	iptables -t mangle -F wand
+	iptables -t mangle -D PREROUTING -j wand >/dev/null 2>&1
+	iptables -t mangle -F wand >/dev/null 2>&1
+	uci -q del dhcp.@dnsmasq[-1].server
+	uci -q del dhcp.@dnsmasq[-1].noresolv
+	uci -q commit dhcp
+	/etc/init.d/dnsmasq restart >/dev/null 2>&1
 	clash_pids=$(pidof clash |sed 's/$//g')
 	for clash_pid in $clash_pids; do
 		kill -9 "$clash_pid" 2>/dev/null
@@ -160,9 +165,9 @@ kill_clash() {
 core_clash() {
 	if [ "$(uci -q get wand.config.enable)" != "1" ]; then
 		/etc/wand/clash -d /etc/wand >/dev/null 2>&1 &
-		ip rule add fwmark "$PROXY_FWMARK" table "$PROXY_ROUTE_TABLE"
-		ip route add local 0.0.0.0/0 dev lo table "$PROXY_ROUTE_TABLE"
-		iptables -t mangle -N wand
+		ip rule add fwmark "$PROXY_FWMARK" table "$PROXY_ROUTE_TABLE" >/dev/null 2>&1
+		ip route add local 0.0.0.0/0 dev lo table "$PROXY_ROUTE_TABLE" >/dev/null 2>&1
+		iptables -t mangle -N wand >/dev/null 2>&1
 		iptables -t mangle -A wand -d 0.0.0.0/8 -j RETURN
 		iptables -t mangle -A wand -d 10.0.0.0/8 -j RETURN
 		iptables -t mangle -A wand -d 127.0.0.0/8 -j RETURN
@@ -172,14 +177,14 @@ core_clash() {
 		iptables -t mangle -A wand -d 192.168.9.0/16 -j RETURN
 		iptables -t mangle -A wand -d 224.0.0.0/4 -j RETURN
 		iptables -t mangle -A wand -d 240.0.0.0/4 -j RETURN
-		iptables -t mangle -A wand -p udp -j TPROXY --on-port $TPROXY_PORT --tproxy-mark "$PROXY_FWMARK"
-		iptables -t mangle -A wand -p tcp -j TPROXY --on-port $TPROXY_PORT --tproxy-mark "$PROXY_FWMARK"
+		iptables -t mangle -A wand -p udp -j TPROXY --on-port $TPROXY_PORT --tproxy-mark "$PROXY_FWMARK" >/dev/null 2>&1
+		iptables -t mangle -A wand -p tcp -j TPROXY --on-port $TPROXY_PORT --tproxy-mark "$PROXY_FWMARK" >/dev/null 2>&1
 		iptables -t mangle -A PREROUTING -j wand
 		uci -q del dhcp.@dnsmasq[-1].server
-		uci add_list dhcp.@dnsmasq[0].noresolv=1
-		uci add_list dhcp.@dnsmasq[0].server=127.0.0.1#"$(uci -q get wand.config.dns_listen)"
-		uci commit dhcp
-		/etc/init.d/dnsmasq restart
+		uci -q add_list dhcp.@dnsmasq[0].noresolv=1
+		uci -q add_list dhcp.@dnsmasq[0].server=127.0.0.1#"$(uci -q get wand.config.dns_listen)"
+		uci -q commit dhcp
+		/etc/init.d/dnsmasq restart >/dev/null 2>&1
 	fi
 }
 EOF
