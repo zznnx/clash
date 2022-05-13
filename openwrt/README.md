@@ -1,3 +1,7 @@
+
+opkg update && opkg remove dnsmasq && rm -rf /etc/config/dhcp
+opkg install wget tar dnsmasq-full iptables ip-full kmod-tun iptables-mod-extra iptables-mod-tproxy ip6tables-mod-nat && reboot
+
 ##### ~Use curl:<br>
 
 ```Shell
