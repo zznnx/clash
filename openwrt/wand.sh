@@ -60,8 +60,9 @@ else
 	$echo "${OK} ${GreenBG} 当前用户是root用户，进入安装流程 ${Font}"
 fi
 
-#opkg update && opkg remove dnsmasq && rm -rf /etc/config/dhcp
-#opkg install dnsmasq-full wget tar ip-full kmod-tun iptables-mod-extra iptables-mod-tproxy ip6tables-mod-nat
+opkg update && opkg remove dnsmasq && rm -rf /etc/config/dhcp
+opkg install dnsmasq-full wget tar ip-full kmod-tun iptables-mod-extra iptables-mod-tproxy ip6tables-mod-nat
+
 rm -rf /etc/wand
 rm -rf /etc/init.d/wand
 rm -rf /etc/config/wand
