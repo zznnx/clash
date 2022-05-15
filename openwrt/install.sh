@@ -13,8 +13,8 @@ Font="\033[0m"
 OK="${Green}[OK]${Font}"
 Error="${Red}[错误]${Font}"
 
-#github proxy
-Proxy="https://ghproxy.com/"
+#url
+Wrturl="https://wand.tk/openwrt"
 
 echo='echo -e' && [ -n "$(echo -e|grep e)" ] && echo=echo
 
@@ -63,6 +63,9 @@ fi
 rm -rf /etc/wand
 rm -rf /etc/init.d/wand
 rm -rf /etc/config/wand
+rm -rf /usr/lib/lua/luci/controller/wand.lua
+rm -rf /usr/lib/lua/luci/model/cbi/wand
+rm -rf /usr/lib/lua/luci/view/wand
 echo -----------------------------------------------
 $echo "请选择想要安装的版本："	
 $echo "${GreenBG}  1、Clash版 ${Font}"
@@ -70,38 +73,34 @@ $echo "${RedBG}  2、ClashPremium版 ${Font}"
 echo -----------------------------------------------
 read -p "请输入相应数字 > " num
 if [ "$num" = "1" ];then
-	$echo "${OK} ${GreenBG} 开始下载Clash ${Font}"
-	mkdir -p /etc/wand
-	wget --no-check-certificate -O /etc/wand/clash "${Proxy}https://raw.githubusercontent.com/zznnx/clash/main/Dreamacro/clash-${CORE_ARCH}"
-	chmod +x /etc/wand/clash
-	
+	Clashurl = "${Wrturl}/clash-${CORE_ARCH}"
 elif [ "$num" = "2" ];then
-	$echo "${OK} ${GreenBG} 开始下载ClashPremium ${Font}"
-	mkdir -p /etc/wand
-	wget --no-check-certificate -O /etc/wand/clash "${Proxy}https://raw.githubusercontent.com/zznnx/clash/main/Dreamacro/clash-premium-${CORE_ARCH}"
-	chmod +x /etc/wand/clash
+	Clashurl = "${Wrturl}/clash-premium-${CORE_ARCH}"
 else
 	$echo "${Error} ${RedBG} 安装已取消 ${Font}"
 	exit 1
 fi
+$echo "${OK} ${GreenBG} 开始下载Clash ${Font}"
+mkdir -p /etc/wand
+wget --no-check-certificate -O /etc/wand/clash "${Clashurl}"
+chmod +x /etc/wand/clash
 
 $echo "${OK} ${GreenBG} 开始下载Country.mmdb ${Font}"
-wget --no-check-certificate -P /etc/wand/ "${Proxy}https://raw.githubusercontent.com/zznnx/clash/main/Dreamacro/Country.mmdb"
+wget --no-check-certificate -P /etc/wand/ "${Wrturl}/Country.mmdb"
 
 $echo "${OK} ${GreenBG} 开始下载Clash UI ${Font}"
-wget --no-check-certificate -P /etc/wand/ "${Proxy}https://raw.githubusercontent.com/zznnx/clash/main/Dreamacro/ui.tar.gz"
+wget --no-check-certificate -P /etc/wand/ "${Wrturl}/ui.tar.gz"
 cd /etc/wand/ || exit
 tar -zxvf ./ui.tar.gz
 rm -rf ./ui.tar.gz
 
-read -p "请输入URL订阅地址 > " url
-if [ "$url" = "" ];then
-	$echo "${Error} ${RedBG} 订阅地址不能为空 ${Font}"
-	sleep 1
-fi
-
-$echo "${OK} ${GreenBG} 开始同步订阅地址 ${Font}"
-wget --no-check-certificate -O /etc/wand/config.yaml "${url}"
+$echo "${OK} ${GreenBG} 开始下载Luci UI ${Font}"
+wget --no-check-certificate -O /usr/lib/lua/luci/controller/wand.lua "${Wrturl}/wand.lua"
+mkdir -p /usr/lib/lua/luci/model/cbi/wand
+wget --no-check-certificate -O /usr/lib/lua/luci/model/cbi/wand/client.lua "${Wrturl}/client.lua"
+mkdir -p /usr/lib/lua/luci/view/wand
+wget --no-check-certificate -O /usr/lib/lua/luci/view/wand/login.htm "${Wrturl}/login.htm"
+wget --no-check-certificate -O /usr/lib/lua/luci/view/wand/dashboard.htm "${Wrturl}/dashboard.htm"
 
 cat >> "/etc/config/wand" << EOF
 config wand 'config'
@@ -113,9 +112,10 @@ config wand 'config'
 	option dns_listen '9053'
 	option external_controller '9080'
 	option external_ui 'ui'
+	option secret '123456'
 	option enable '0'
-	option custom_url "${Proxy}https://raw.githubusercontent.com/zznnx/clash/main/Dreamacro/Country.mmdb"
-	option subscribe_url "${url}"
+	option clash_url "${Clashurl}"
+	option custom_url "${Wrturl}/Country.mmdb"
 EOF
 
 cat >> "/etc/init.d/wand" << \EOF
@@ -133,19 +133,29 @@ start() {
 	uci -q del dhcp.@dnsmasq[-1].server
 	uci -q del dhcp.@dnsmasq[-1].noresolv
 	uci -q commit dhcp
-	core_clash
-	echo "wand is start"
+	uci -q set wand.config.enable=1
+	uci -q commit wand
+	/etc/init.d/wand enable >/dev/null 2>&1
+	if pidof clash >/dev/null; then
+		echo "已在运行"
+	else
+		core_clash
+		echo "启动成功"
+	fi
 }
 
 stop() {
+	/etc/init.d/wand disable >/dev/null 2>&1
+	uci -q set wand.config.enable=1
+	uci -q commit wand
 	kill_clash
-	echo "wand is stop"
+	echo "停止成功"
 }
 
 restart() {
 	kill_clash
 	core_clash
-	echo "wand is restart"
+	echo "重启成功"
 }
 
 kill_clash() {
@@ -189,9 +199,6 @@ core_clash() {
 }
 EOF
 chmod +x /etc/init.d/wand
-
-$echo "${OK} ${GreenBG} 正在启动 ${Font}"
-/etc/init.d/wand enable
-/etc/init.d/wand start
+rm -rf /tmp/luci-*
 
 $echo "${OK} ${GreenBG} 安装完成 ${Font}"
