@@ -143,7 +143,7 @@ start() {
 	uci -q del dhcp.@dnsmasq[-1].server
 	uci -q del dhcp.@dnsmasq[-1].noresolv
 	uci -q commit dhcp
-	uci -q set wand.config.enable=1
+	uci -q set wand.config.enable=0
 	uci -q commit wand
 	/etc/init.d/wand enable >/dev/null 2>&1
 	if pidof clash >/dev/null; then
