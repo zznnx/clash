@@ -72,6 +72,7 @@ $echo "${GreenBG}  1、Clash版 ${Font}"
 $echo "${RedBG}  2、ClashPremium版 ${Font}"
 echo -----------------------------------------------
 read -p "请输入相应数字 > " num
+Clashurl = ""
 if [ "$num" = "1" ];then
 	Clashurl = "${Wrturl}/clash-${CORE_ARCH}"
 elif [ "$num" = "2" ];then
