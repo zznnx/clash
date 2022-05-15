@@ -68,7 +68,7 @@ if [ -f "/etc/init.d/wand" ]; then
 	rm -rf /usr/lib/lua/luci/controller/wand.lua
 	rm -rf /usr/lib/lua/luci/model/cbi/wand
 	rm -rf /usr/lib/lua/luci/view/wand
-	$echo "${Error} ${RedBG} 已删除安装版本，请从新开始安装 ${Font}"
+	$echo "${OK} ${RedBG} 已删除安装版本，请从新开始安装 ${Font}"
 fi
 echo -----------------------------------------------
 $echo "请选择想要安装的版本："	
@@ -105,7 +105,9 @@ cd /etc/wand/ || exit
 tar -zxvf ./luci-wand.tar.gz
 rm -rf ./luci-wand.tar.gz
 cp /etc/wand/luci-wand/wand.lua /usr/lib/lua/luci/controller/wand.lua
+mkdir -p /usr/lib/lua/luci/model/cbi/wand
 cp /etc/wand/luci-wand/client.lua /usr/lib/lua/luci/model/cbi/wand/client.lua
+mkdir -p /usr/lib/lua/luci/view/wand
 cp /etc/wand/luci-wand/login.htm /usr/lib/lua/luci/view/wand/login.htm
 cp /etc/wand/luci-wand/dashboard.htm /usr/lib/lua/luci/view/wand/dashboard.htm
 rm -rf ./luci-wand
