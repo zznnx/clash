@@ -72,11 +72,11 @@ $echo "${GreenBG}  1、Clash版 ${Font}"
 $echo "${RedBG}  2、ClashPremium版 ${Font}"
 echo -----------------------------------------------
 read -p "请输入相应数字 > " num
-Clashurl = ""
+Clashurl=""
 if [ "$num" = "1" ];then
-	Clashurl = "${Wrturl}/clash-${CORE_ARCH}"
+	Clashurl="${Wrturl}/clash-${CORE_ARCH}"
 elif [ "$num" = "2" ];then
-	Clashurl = "${Wrturl}/clash-premium-${CORE_ARCH}"
+	Clashurl="${Wrturl}/clash-premium-${CORE_ARCH}"
 else
 	$echo "${Error} ${RedBG} 安装已取消 ${Font}"
 	exit 1
