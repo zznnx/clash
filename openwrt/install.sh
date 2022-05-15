@@ -100,12 +100,15 @@ tar -zxvf ./ui.tar.gz
 rm -rf ./ui.tar.gz
 
 $echo "${OK} ${GreenBG} 开始下载Luci UI ${Font}"
-wget --no-check-certificate -O /usr/lib/lua/luci/controller/wand.lua "${Wrturl}/wand.lua"
-mkdir -p /usr/lib/lua/luci/model/cbi/wand
-wget --no-check-certificate -O /usr/lib/lua/luci/model/cbi/wand/client.lua "${Wrturl}/client.lua"
-mkdir -p /usr/lib/lua/luci/view/wand
-wget --no-check-certificate -O /usr/lib/lua/luci/view/wand/login.htm "${Wrturl}/login.htm"
-wget --user-agent="Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36" --no-check-certificate -O /usr/lib/lua/luci/view/wand/dashboard.htm "${Wrturl}/dashboard.htm"
+wget --no-check-certificate -P /etc/wand/ "${Wrturl}/luci-wand.tar.gz"
+cd /etc/wand/ || exit
+tar -zxvf ./luci-wand.tar.gz
+rm -rf ./luci-wand.tar.gz
+cp /etc/wand/luci-wand/wand.lua /usr/lib/lua/luci/controller/wand.lua
+cp /etc/wand/luci-wand/client.lua /usr/lib/lua/luci/model/cbi/wand/client.lua
+cp /etc/wand/luci-wand/login.htm /usr/lib/lua/luci/view/wand/login.htm
+cp /etc/wand/luci-wand/dashboard.htm /usr/lib/lua/luci/view/wand/dashboard.htm
+rm -rf ./luci-wand
 
 cat >> "/etc/config/wand" << EOF
 config wand 'config'
