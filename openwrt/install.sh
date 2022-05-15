@@ -79,13 +79,14 @@ read -p "请输入相应数字 > " num
 Clashurl=""
 if [ "$num" = "1" ];then
 	Clashurl="${Wrturl}/clash-${CORE_ARCH}"
+	$echo "${OK} ${GreenBG} 开始下载Clash ${Font}"
 elif [ "$num" = "2" ];then
 	Clashurl="${Wrturl}/clash-premium-${CORE_ARCH}"
+	$echo "${OK} ${GreenBG} 开始下载ClashPremium ${Font}"
 else
 	$echo "${Error} ${RedBG} 安装已取消 ${Font}"
 	exit 1
 fi
-$echo "${OK} ${GreenBG} 开始下载Clash ${Font}"
 mkdir -p /etc/wand
 wget --no-check-certificate -O /etc/wand/clash "${Clashurl}"
 chmod +x /etc/wand/clash
