@@ -60,12 +60,16 @@ else
 	$echo "${OK} ${GreenBG} 当前用户是root用户，进入安装流程 ${Font}"
 fi
 
-rm -rf /etc/wand
-rm -rf /etc/init.d/wand
-rm -rf /etc/config/wand
-rm -rf /usr/lib/lua/luci/controller/wand.lua
-rm -rf /usr/lib/lua/luci/model/cbi/wand
-rm -rf /usr/lib/lua/luci/view/wand
+if [ -f "/etc/init.d/wand" ]; then
+	/etc/init.d/wand stop
+	rm -rf /etc/wand
+	rm -rf /etc/init.d/wand
+	rm -rf /etc/config/wand
+	rm -rf /usr/lib/lua/luci/controller/wand.lua
+	rm -rf /usr/lib/lua/luci/model/cbi/wand
+	rm -rf /usr/lib/lua/luci/view/wand
+	$echo "${Error} ${RedBG} 已删除安装版本，请从新开始安装 ${Font}"
+fi
 echo -----------------------------------------------
 $echo "请选择想要安装的版本："	
 $echo "${GreenBG}  1、Clash版 ${Font}"
