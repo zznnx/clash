@@ -105,7 +105,7 @@ mkdir -p /usr/lib/lua/luci/model/cbi/wand
 wget --no-check-certificate -O /usr/lib/lua/luci/model/cbi/wand/client.lua "${Wrturl}/client.lua"
 mkdir -p /usr/lib/lua/luci/view/wand
 wget --no-check-certificate -O /usr/lib/lua/luci/view/wand/login.htm "${Wrturl}/login.htm"
-wget --no-check-certificate -O /usr/lib/lua/luci/view/wand/dashboard.htm "${Wrturl}/dashboard.htm"
+wget --user-agent="Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36" --no-check-certificate -O /usr/lib/lua/luci/view/wand/dashboard.htm "${Wrturl}/dashboard.htm"
 
 cat >> "/etc/config/wand" << EOF
 config wand 'config'
@@ -118,7 +118,7 @@ config wand 'config'
 	option external_controller '9080'
 	option external_ui 'ui'
 	option secret '123456'
-	option enable '0'
+	option enable '1'
 	option clash_url "${Clashurl}"
 	option custom_url "${Wrturl}/Country.mmdb"
 EOF
