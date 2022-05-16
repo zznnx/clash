@@ -156,9 +156,6 @@ start() {
 }
 
 stop() {
-	/etc/init.d/wand disable >/dev/null 2>&1
-	uci -q set wand.config.enable=1
-	uci -q commit wand
 	kill_clash
 	echo "停止成功"
 }
